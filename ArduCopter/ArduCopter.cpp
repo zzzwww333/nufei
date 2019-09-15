@@ -316,8 +316,53 @@ void Copter::update_batt_compass(void)
 
 void Copter::update_OpenMV(void)
 {
-    if(openmv.update())
+    // simulation
+    bool sim_openmv_new_data = false;
+    static uint32_t last_sim_new_data_time_ms = 0;
+    if(control_mode != GUIDED) {
+        last_sim_new_data_time_ms = millis();
+    } else if (millis()- last_sim_new_data_time_ms < 10000) {
+        sim_openmv_new_data = true;
+        openmv.cx = 1;
+        openmv.cy = 1;
+    } else if (millis()- last_sim_new_data_time_ms < 15000) {
+        sim_openmv_new_data = false;
+    } else if (millis()- last_sim_new_data_time_ms < 20000) {
+
+    } else if (millis()- last_sim_new_data_time_ms < 25000) {
+        sim_openmv_new_data = true;
+        openmv.cx = 160;
+        openmv.cy = 120;
+    } else {
+        sim_openmv_new_data = false;
+    }
+
+    // end of simulation code
+
+    Vector3f target = Vector3f(0, 0, 0);
+    if(openmv.update() || sim_openmv_new_data) {
         Log_Write_OpenMV();
+
+        int16_t target_body_frame_y = (int16_t)openmv.cx - 80;  // QQVGA 160 * 120
+        int16_t target_body_frame_z = (int16_t)openmv.cy - 60;
+
+        float angle_y_deg = target_body_frame_y * 60 / 160;
+        float angle_z_deg = target_body_frame_z * 60 / 120;
+
+        Vector3f v = Vector3f(1.0f, cosf(radians(angle_y_deg)), tanf(radians(angle_z_deg)));
+        v = v / v.length();
+        target = v * 1000.0f;  // distance 10m
+
+        if(control_mode == GUIDED) {
+            mode_guided.set_destination(target, false, 0, true, 0, false);
+        }
+
+    } else if (millis() - openmv.last_frame_ms > 500)  // lost target
+    {
+        if(control_mode == GUIDED) {
+            mode_guided.set_destination(target, false, 0, true, 0, false);
+        }
+    }
 }
 
 // Full rate logging of attitude, rate and pid loops
