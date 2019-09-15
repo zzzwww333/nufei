@@ -43,10 +43,10 @@ void AP_OpenMV::init(const AP_SerialManager& serial_manager)
     }
 }
 
-void AP_OpenMV::update()
+bool AP_OpenMV::update()
 {
     if(_port == NULL)
-        return;
+        return false;
 
     int16_t numc = _port->available();
     uint8_t data;
@@ -79,18 +79,20 @@ void AP_OpenMV::update()
             break;
 
         case 4:
+            _step = 0;
             checksum = _cx_temp + _cy_temp;
             if(checksum == data) {
                 cx = _cx_temp;
                 cy = _cy_temp;
                 last_frame_ms = AP_HAL::millis();
+                return true;
             }
-
-            _step = 0;
             break;
 
         default:
             _step = 0;
         }
     }
+
+    return false;
 }
