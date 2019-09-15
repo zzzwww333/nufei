@@ -316,7 +316,8 @@ void Copter::update_batt_compass(void)
 
 void Copter::update_OpenMV(void)
 {
-    openmv.update();
+    if(openmv.update())
+        Log_Write_OpenMV();
 }
 
 // Full rate logging of attitude, rate and pid loops
