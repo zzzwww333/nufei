@@ -84,11 +84,11 @@ void ModeGuided::pos_control_start()
     wp_nav->wp_and_spline_init();
 
     // initialise wpnav to stopping point
-    Vector3f stopping_point;
-    wp_nav->get_wp_stopping_point(stopping_point);
+    // Vector3f stopping_point;
+    // wp_nav->get_wp_stopping_point(stopping_point);
 
     // no need to check return status because terrain data is not used
-    wp_nav->set_wp_destination(stopping_point, false);
+    wp_nav->set_wp_destination(copter.user_waypoint[copter.current_user_waypoint_num], false);
 
     // initialise yaw
     auto_yaw.set_mode_to_default(false);
@@ -415,6 +415,14 @@ void Mode::auto_takeoff_run()
 // called from guided_run
 void ModeGuided::pos_control_run()
 {
+    if(copter.current_user_waypoint_num >= 0){
+        if(wp_nav->reached_wp_destination()){
+            copter.current_user_waypoint_num --;
+            if(copter.current_user_waypoint_num >= 0)
+                wp_nav->set_wp_destination(copter.user_waypoint[copter.current_user_waypoint_num], false);
+        }
+    }
+
     // process pilot's yaw input
     float target_yaw_rate = 0;
     if (!copter.failsafe.radio) {
