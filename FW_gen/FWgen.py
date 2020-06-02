@@ -23,7 +23,7 @@ for i in range(TotleFlashSize):
 
 # 第二步，填入APP固件
 print("写入APP固件")
-AppFile = open(file="AP_Periph.bin", mode="rb")
+AppFile = open(file="../build/NFCY_GNSS/bin/AP_Periph.bin", mode="rb")
 AppData = AppFile.read()
 FirmwareFile.seek(APP_START_ADDR)
 for i in range(len(AppData)):
@@ -31,7 +31,7 @@ for i in range(len(AppData)):
 
 # 第三步，填入BootLoader固件
 print("写入BootLoader固件")
-BootloaderFile = open(file="AP_Bootloader.bin", mode="rb")
+BootloaderFile = open(file="../build/NFCY_GNSS/bin/AP_Bootloader.bin", mode="rb")
 BootLoaderData = BootloaderFile.read()
 FirmwareFile.seek(BOOT_LOADER_START_ADDR)
 for i in range(len(BootLoaderData)):
