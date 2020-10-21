@@ -967,6 +967,8 @@ static void can_wait_node_id(void)
                 palWriteLine(HAL_GPIO_PIN_LED, (led_pattern & (1U<<led_idx))?1:0);
                 led_idx = (led_idx+1) % 32;
                 last_led_change = now;
+
+                periph.update_rainbow();
             }
         }
 

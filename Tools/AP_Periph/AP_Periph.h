@@ -34,6 +34,7 @@ public:
     void can_baro_update();
     void can_airspeed_update();
     void can_rangefinder_update();
+    void update_rainbow();
 
     void load_parameters();
 
